@@ -5,7 +5,7 @@ Making a clone of a game (not decided yet) in Rust without a Game Engine or Game
 # Features
 
 - [x] Start the project with cargo
-- [ ] Create a window
+- [x] Create a window
 - [ ] Draw a square to the screen
 
 # Dependencies
