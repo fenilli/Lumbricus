@@ -1,4 +1,4 @@
-# No Name (YET)
+# Lumbricus
 
 ## Overview
 A 2D platformer roguelike game with RPG elements, procedural generation, multiple characters with skill trees, and meta-progression.
