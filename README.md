@@ -11,9 +11,9 @@ This roadmap breaks the development into phases with detailed steps.
 
 ### Phase 1: Core Setup and Game Loop
 
-- [ ] Initialize the project and dependencies.
-- [ ] Implement the game loop with delta-time tracking.
-- [ ] Set up window management and input handling using winit.
+- [x] Initialize the project and dependencies.
+- [x] Set up window management using winit.
+- [x] Implement the game loop with delta-time tracking.
 - [ ] Implement basic input events (e.g., ESC to quit).
 - [ ] Create an app context to share app state.
 
@@ -76,4 +76,5 @@ This roadmap breaks the development into phases with detailed steps.
 
 - [ ] Optimize the game for smooth performance at 60 FPS.
 - [ ] Playtest for bugs and balancing issues.
+- [ ] Give it a real product name.
 - [ ] Prepare the game for distribution (packaging executables).
