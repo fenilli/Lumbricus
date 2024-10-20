@@ -15,7 +15,7 @@ This roadmap breaks the development into phases with detailed steps.
 - [x] Initialize the project and dependencies.
 - [x] Set up and engine struct for window management using winit.
 - [x] Implement the game loop with delta-time tracking.
-- [ ] Implement input event handling (e.g., ESC to quit).
+- [x] Implement input event handling (e.g., ESC to quit).
 
 ### Phase 2: Graphics and Rendering
 
