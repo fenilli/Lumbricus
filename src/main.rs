@@ -1,5 +1,6 @@
-use std::time::Duration;
+mod framerate;
 
+use framerate::Framerate;
 use winit::{
     application::ApplicationHandler,
     event::WindowEvent,
@@ -9,19 +10,22 @@ use winit::{
 
 struct Engine {
     window: Option<Window>,
-    last_frame_time: std::time::Instant,
-    last_fps_check: std::time::Instant,
-    frame_counter: u32,
+    framerate: Framerate,
 }
 
 impl Engine {
     fn new() -> Self {
         Self {
             window: None,
-            last_frame_time: std::time::Instant::now(),
-            last_fps_check: std::time::Instant::now(),
-            frame_counter: 0,
+            framerate: Framerate::new(),
         }
+    }
+
+    fn run() {
+        let mut engine = Engine::new();
+
+        let event_loop = EventLoop::new().unwrap();
+        _ = event_loop.run_app(&mut engine);
     }
 }
 
@@ -40,18 +44,9 @@ impl ApplicationHandler for Engine {
     ) {
         match event {
             WindowEvent::RedrawRequested => {
-                let now = std::time::Instant::now();
-                let delta_time = now - self.last_frame_time;
-                self.last_frame_time = now;
-
-                self.frame_counter += 1;
-
-                if now - self.last_fps_check >= Duration::from_secs(1) {
-                    println!("Delta Time: {:?}", delta_time);
-                    println!("FPS: {}", self.frame_counter);
-                    self.frame_counter = 0;
-                    self.last_fps_check = now;
-                }
+                let dt = self.framerate.tick();
+                let fps = self.framerate.get_frames_per_second();
+                println!("DT: {} - FPS: {}", dt, fps);
             }
             WindowEvent::CloseRequested => event_loop.exit(),
             _ => {}
@@ -64,7 +59,5 @@ impl ApplicationHandler for Engine {
 }
 
 fn main() {
-    let event_loop = EventLoop::new().unwrap();
-    let mut engine = Engine::new();
-    _ = event_loop.run_app(&mut engine);
+    Engine::run();
 }
