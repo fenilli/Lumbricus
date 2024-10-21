@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use winit::{
-    event::{ElementState, KeyEvent, MouseButton, MouseScrollDelta},
+    event::{ElementState, MouseButton, MouseScrollDelta, WindowEvent},
     keyboard::{KeyCode, PhysicalKey},
 };
 
@@ -19,6 +19,7 @@ pub struct Input {
     scroll_delta: (f32, f32),
 }
 
+#[allow(dead_code)]
 impl Input {
     pub fn new() -> Self {
         Self {
@@ -43,59 +44,68 @@ impl Input {
         self.scroll_delta = (0.0, 0.0);
     }
 
-    pub fn handle_keyboard_event(&mut self, event: KeyEvent) {
-        let state = event.state;
-        let key_code = match event.physical_key {
-            PhysicalKey::Code(code) => code,
-            PhysicalKey::Unidentified(_) => return,
+    pub fn update(&mut self, event: &WindowEvent) {
+        self.handle_keyboard_event(event);
+        self.handle_mouse_event(event);
+    }
+
+    fn handle_keyboard_event(&mut self, event: &WindowEvent) {
+        match event {
+            WindowEvent::KeyboardInput { event, .. } => {
+                let element_state = event.state;
+                let key_code = match event.physical_key {
+                    PhysicalKey::Code(code) => code,
+                    PhysicalKey::Unidentified(_) => return,
+                };
+
+                match element_state {
+                    ElementState::Pressed => {
+                        if !self.held_keys.contains(&key_code) {
+                            self.pressed_keys.insert(key_code);
+                        }
+
+                        self.held_keys.insert(key_code);
+                    }
+                    ElementState::Released => {
+                        self.held_keys.remove(&key_code);
+                        self.released_keys.insert(key_code);
+                    }
+                }
+            }
+            _ => {}
         };
+    }
 
-        match state {
-            ElementState::Pressed => {
-                if !self.held_keys.contains(&key_code) {
-                    self.pressed_keys.insert(key_code);
+    fn handle_mouse_event(&mut self, event: &WindowEvent) {
+        match event {
+            WindowEvent::MouseInput { state, button, .. } => match state {
+                ElementState::Pressed => {
+                    if !self.held_buttons.contains(&button) {
+                        self.pressed_buttons.insert(*button);
+                    }
+
+                    self.held_buttons.insert(*button);
                 }
-
-                self.held_keys.insert(key_code);
-            }
-            ElementState::Released => {
-                self.held_keys.remove(&key_code);
-                self.released_keys.insert(key_code);
-            }
-        }
-    }
-
-    pub fn handle_mouse_button(&mut self, state: ElementState, button: MouseButton) {
-        match state {
-            ElementState::Pressed => {
-                if !self.held_buttons.contains(&button) {
-                    self.pressed_buttons.insert(button);
+                ElementState::Released => {
+                    self.held_buttons.remove(&button);
+                    self.released_buttons.insert(*button);
                 }
-
-                self.held_buttons.insert(button);
+            },
+            WindowEvent::CursorMoved { position, .. } => {
+                self.mouse_position = (position.x, position.y);
             }
-            ElementState::Released => {
-                self.held_buttons.remove(&button);
-                self.released_buttons.insert(button);
-            }
-        }
-    }
-
-    pub fn handle_cursor_moved(&mut self, position: (f64, f64)) {
-        self.mouse_position = position;
-    }
-
-    pub fn handle_scroll_delta(&mut self, delta: MouseScrollDelta) {
-        match delta {
-            MouseScrollDelta::LineDelta(x, y) => {
-                self.scroll_delta.0 += x;
-                self.scroll_delta.1 += y;
-            }
-            MouseScrollDelta::PixelDelta(pos) => {
-                self.scroll_delta.0 += pos.x as f32;
-                self.scroll_delta.1 += pos.y as f32;
-            }
-        }
+            WindowEvent::MouseWheel { delta, .. } => match delta {
+                MouseScrollDelta::LineDelta(x, y) => {
+                    self.scroll_delta.0 += x;
+                    self.scroll_delta.1 += y;
+                }
+                MouseScrollDelta::PixelDelta(pos) => {
+                    self.scroll_delta.0 += pos.x as f32;
+                    self.scroll_delta.1 += pos.y as f32;
+                }
+            },
+            _ => {}
+        };
     }
 
     pub fn is_key_held(&self, key_code: KeyCode) -> bool {
