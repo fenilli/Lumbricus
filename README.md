@@ -19,12 +19,12 @@ This roadmap breaks the development into phases with detailed steps.
 
 ### Phase 2: Graphics and Rendering
 
-- [ ] Create the render state for surface initialization and command encoder.
-- [ ] Create render pipeline to enable shaders.
+- [x] Create the render state for surface initialization and command encoder.
+- [x] Create render pipeline to enable shaders.
 - [ ] Implement a mesh struct for vertex and index buffers.
 - [ ] Implement texture loading and add binding groups to drawing.
 - [ ] Create a uniform buffer for projection.
-- [ ] Draw something to the screen.
+- [x] Draw something to the screen.
 - [ ] Implement an Animation System.
 - [ ] Add a simple UI for the HUD, inventory, and menus.
 
