@@ -2,7 +2,7 @@ use crate::{input::Input, timer::Timer};
 
 use winit::{
     application::ApplicationHandler,
-    event::WindowEvent,
+    event::{MouseButton, WindowEvent},
     event_loop::{ActiveEventLoop, EventLoop},
     keyboard::KeyCode,
     window::{Window, WindowId},
@@ -48,22 +48,46 @@ impl ApplicationHandler for Engine {
             WindowEvent::RedrawRequested => {
                 let _dt = self.timer.tick();
 
-                if self.input.is_held(KeyCode::KeyW) {
+                if self.input.is_key_held(KeyCode::KeyW) {
                     println!("Held W");
                 }
 
-                if self.input.is_pressed(KeyCode::Space) {
+                if self.input.is_key_pressed(KeyCode::Space) {
                     println!("Pressed Space");
                 }
 
-                if self.input.is_released(KeyCode::Space) {
+                if self.input.is_key_released(KeyCode::Space) {
                     println!("Released Space");
                 }
+
+                if self.input.is_button_held(MouseButton::Left) {
+                    println!("Held Mouse Left");
+                }
+
+                if self.input.is_button_pressed(MouseButton::Right) {
+                    println!("Pressed Mouse Right");
+                }
+
+                if self.input.is_button_released(MouseButton::Right) {
+                    println!("Released Mouse Right");
+                }
+
+                println!("Pos: {:?}", self.input.get_mouse_position());
+                println!("Delta: {:?}", self.input.get_scroll_delta());
 
                 // println!("DT: {}, FPS: {}", dt, self.timer.get_fps());
             }
             WindowEvent::KeyboardInput { event, .. } => {
                 self.input.handle_keyboard_event(event);
+            }
+            WindowEvent::MouseInput { state, button, .. } => {
+                self.input.handle_mouse_button(state, button);
+            }
+            WindowEvent::CursorMoved { position, .. } => {
+                self.input.handle_cursor_moved((position.x, position.y));
+            }
+            WindowEvent::MouseWheel { delta, .. } => {
+                self.input.handle_scroll_delta(delta);
             }
             WindowEvent::CloseRequested => event_loop.exit(),
             _ => {}
