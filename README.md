@@ -11,7 +11,8 @@ Revised version simplified project of a 2D game with a simple 2D game engine beh
 - [x] Window Management with WINIT
 - [x] Application Context
 - [x] Delta Timing
-- [ ] Input Handling
+- [x] Input Handling
+    - [ ] Fix Held, Pressed and Released.
 - [ ] 2D Renderer using WGPU
 - [ ] Asset Loading
 - [ ] Textured/Untextured Quads

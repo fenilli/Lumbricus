@@ -6,7 +6,7 @@ use winit::{
     window::{Window, WindowAttributes},
 };
 
-use crate::{FrameTimer, LifecycleHandler};
+use crate::{input::Input, FrameTimer, LifecycleHandler};
 
 pub struct ApplicationDescriptor {
     pub title: &'static str,
@@ -16,17 +16,19 @@ pub struct ApplicationDescriptor {
 }
 
 pub struct ApplicationContext {
-    frame_timer: FrameTimer,
+    pub frame_timer: FrameTimer,
+    pub input: Input,
     window: Window,
 }
 
 enum ApplicationState {
     Uninitialized(ApplicationDescriptor),
-    Initialized(ApplicationContext),
+    Initialized,
     Exited,
 }
 
 pub struct Application<H: LifecycleHandler> {
+    context: Option<ApplicationContext>,
     state: ApplicationState,
     handler: H,
 }
@@ -37,6 +39,7 @@ impl<H: LifecycleHandler> Application<H> {
         event_loop.set_control_flow(winit::event_loop::ControlFlow::Poll);
 
         let mut application = Application {
+            context: None,
             state: ApplicationState::Uninitialized(descriptor),
             handler,
         };
@@ -56,17 +59,13 @@ impl<H: LifecycleHandler> ApplicationHandler for Application<H> {
                     });
 
                 let window = event_loop.create_window(window_attrs).unwrap();
-                self.state = ApplicationState::Initialized(ApplicationContext {
+                self.context = Some(ApplicationContext {
                     frame_timer: FrameTimer::new(descriptor.fixed_time),
+                    input: Input::new(),
                     window,
                 });
-
-                match &self.state {
-                    ApplicationState::Initialized(context) => {
-                        self.handler.initialize(context);
-                    }
-                    _ => (),
-                };
+                self.handler.initialize(self.context.as_mut().unwrap());
+                self.state = ApplicationState::Initialized;
             }
             _ => (),
         };
@@ -78,39 +77,38 @@ impl<H: LifecycleHandler> ApplicationHandler for Application<H> {
         _: winit::window::WindowId,
         event: winit::event::WindowEvent,
     ) {
-        match event {
-            WindowEvent::RedrawRequested => {
-                match &mut self.state {
-                    ApplicationState::Initialized(context) => {
+        match self.state {
+            ApplicationState::Initialized => {
+                let context = self.context.as_mut().unwrap();
+                context.input.update(&event);
+
+                match event {
+                    WindowEvent::RedrawRequested => {
                         context.frame_timer.tick();
-                        self.handler.update(context.frame_timer.get_delta_time());
+                        self.handler
+                            .update(context.frame_timer.get_delta_time(), context);
 
                         while context.frame_timer.should_do_fixed_tick() {
                             self.handler
-                                .fixed_update(context.frame_timer.get_fixed_delta_time());
+                                .fixed_update(context.frame_timer.get_fixed_delta_time(), context);
                         }
                     }
-                    _ => (),
-                };
-            }
-            WindowEvent::CloseRequested => {
-                match &self.state {
-                    ApplicationState::Initialized(context) => {
+                    WindowEvent::CloseRequested => {
                         self.handler.shutdown(context);
                         self.state = ApplicationState::Exited;
                         event_loop.exit();
                     }
-                    _ => (),
+                    _ => {}
                 };
             }
-            _ => {}
-        }
+            _ => (),
+        };
     }
 
     fn about_to_wait(&mut self, _: &winit::event_loop::ActiveEventLoop) {
         match &self.state {
-            ApplicationState::Initialized(context) => {
-                context.window.request_redraw();
+            ApplicationState::Initialized => {
+                self.context.as_ref().unwrap().window.request_redraw();
             }
             _ => (),
         };
