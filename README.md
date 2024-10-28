@@ -8,9 +8,11 @@ Revised version simplified project of a 2D game with a simple 2D game engine beh
 
 > Features that the game engine will achieve to make games, not steps to make it.
 
-- [ ] Window Management with WINIT
-- [ ] 2D Renderer using WGPU
+- [x] Window Management with WINIT
+- [x] Application Context
+- [x] Delta Timing
 - [ ] Input Handling
+- [ ] 2D Renderer using WGPU
 - [ ] Asset Loading
 - [ ] Textured/Untextured Quads
 - [ ] Texture Atlas

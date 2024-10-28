@@ -1,5 +1,8 @@
+use crate::ApplicationContext;
+
 pub trait LifecycleHandler {
-    fn initialize(&mut self) {}
-    fn update(&mut self) {}
-    fn shutdown(&mut self) {}
+    fn initialize(&mut self, context: &ApplicationContext);
+    fn fixed_update(&mut self, delta: f32);
+    fn update(&mut self, delta: f32);
+    fn shutdown(&mut self, context: &ApplicationContext);
 }

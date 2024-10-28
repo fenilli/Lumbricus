@@ -6,15 +6,17 @@ use winit::{
     window::{Window, WindowAttributes},
 };
 
-use crate::LifecycleHandler;
+use crate::{FrameTimer, LifecycleHandler};
 
 pub struct ApplicationDescriptor {
     pub title: &'static str,
     pub height: u32,
     pub width: u32,
+    pub fixed_time: u32,
 }
 
 pub struct ApplicationContext {
+    frame_timer: FrameTimer,
     window: Window,
 }
 
@@ -54,8 +56,17 @@ impl<H: LifecycleHandler> ApplicationHandler for Application<H> {
                     });
 
                 let window = event_loop.create_window(window_attrs).unwrap();
-                self.state = ApplicationState::Initialized(ApplicationContext { window });
-                self.handler.initialize();
+                self.state = ApplicationState::Initialized(ApplicationContext {
+                    frame_timer: FrameTimer::new(descriptor.fixed_time),
+                    window,
+                });
+
+                match &self.state {
+                    ApplicationState::Initialized(context) => {
+                        self.handler.initialize(context);
+                    }
+                    _ => (),
+                };
             }
             _ => (),
         };
@@ -69,17 +80,28 @@ impl<H: LifecycleHandler> ApplicationHandler for Application<H> {
     ) {
         match event {
             WindowEvent::RedrawRequested => {
-                match &self.state {
-                    ApplicationState::Initialized(_context) => {
-                        self.handler.update();
+                match &mut self.state {
+                    ApplicationState::Initialized(context) => {
+                        context.frame_timer.tick();
+                        self.handler.update(context.frame_timer.get_delta_time());
+
+                        while context.frame_timer.should_do_fixed_tick() {
+                            self.handler
+                                .fixed_update(context.frame_timer.get_fixed_delta_time());
+                        }
                     }
                     _ => (),
                 };
             }
             WindowEvent::CloseRequested => {
-                self.handler.shutdown();
-                self.state = ApplicationState::Exited;
-                event_loop.exit();
+                match &self.state {
+                    ApplicationState::Initialized(context) => {
+                        self.handler.shutdown(context);
+                        self.state = ApplicationState::Exited;
+                        event_loop.exit();
+                    }
+                    _ => (),
+                };
             }
             _ => {}
         }

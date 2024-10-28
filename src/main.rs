@@ -1,29 +1,43 @@
-use lumbricus::{Application, ApplicationDescriptor, LifecycleHandler};
+use std::time::{Duration, Instant};
+
+use lumbricus::{Application, ApplicationContext, ApplicationDescriptor, LifecycleHandler};
 
 struct Game {
-    counter: u32,
+    last_second: Instant,
+    fixed_update_count: u32,
 }
 
 impl Game {
     pub fn new() -> Self {
-        Self { counter: 0 }
+        Self {
+            last_second: Instant::now(),
+            fixed_update_count: 0,
+        }
     }
 }
 
 impl LifecycleHandler for Game {
-    fn initialize(&mut self) {
+    fn initialize(&mut self, _context: &ApplicationContext) {
         println!("Initialized");
     }
 
-    fn update(&mut self) {
-        self.counter += 1;
-        println!("Counter: {}", self.counter);
+    fn fixed_update(&mut self, delta: f32) {
+        self.fixed_update_count += 1;
+        println!("fixed_update: {}", delta);
     }
 
-    fn shutdown(&mut self) {
-        self.counter = 0;
-        println!("Exit: {}", self.counter);
+    fn update(&mut self, _delta: f32) {
+        if self.last_second.elapsed() >= Duration::from_secs(1) {
+            println!(
+                "Fixed updates in the last second: {}",
+                self.fixed_update_count
+            );
+            self.fixed_update_count = 0;
+            self.last_second = Instant::now();
+        }
     }
+
+    fn shutdown(&mut self, _context: &ApplicationContext) {}
 }
 
 fn main() {
@@ -33,6 +47,7 @@ fn main() {
             title: "My Game",
             height: 600,
             width: 800,
+            fixed_time: 60,
         },
         game,
     );
