@@ -64,7 +64,7 @@ impl<H: LifecycleHandler> ApplicationHandler for Application<H> {
                     input: Input::new(),
                     window,
                 });
-                self.handler.initialize(self.context.as_mut().unwrap());
+                self.handler.initialize();
                 self.state = ApplicationState::Initialized;
             }
             _ => (),
@@ -84,17 +84,18 @@ impl<H: LifecycleHandler> ApplicationHandler for Application<H> {
 
                 match event {
                     WindowEvent::RedrawRequested => {
+                        self.handler.input(&context.input);
+
                         context.frame_timer.tick();
-                        self.handler
-                            .update(context.frame_timer.get_delta_time(), context);
+                        self.handler.update(context.frame_timer.get_delta_time());
 
                         while context.frame_timer.should_do_fixed_tick() {
                             self.handler
-                                .fixed_update(context.frame_timer.get_fixed_delta_time(), context);
+                                .fixed_update(context.frame_timer.get_fixed_delta_time());
                         }
                     }
                     WindowEvent::CloseRequested => {
-                        self.handler.shutdown(context);
+                        self.handler.shutdown();
                         self.state = ApplicationState::Exited;
                         event_loop.exit();
                     }

@@ -13,7 +13,7 @@ Revised version simplified project of a 2D game with a simple 2D game engine beh
 - [x] Delta Timing
 - [x] Input Handling
     - [x] Fix Held, Pressed and Released.
-    - [ ] Make input() inside lifecycle_handler so inputs are concentrated there.
+    - [x] Make input() inside lifecycle_handler so inputs are concentrated there.
 - [ ] 2D Renderer using WGPU
 - [ ] Asset Loading
 - [ ] Textured/Untextured Quads
