@@ -1,66 +1,40 @@
-use std::{
-    collections::HashSet,
-    time::{Duration, Instant},
-};
-
-use lumbricus::{
-    Application, ApplicationContext, ApplicationDescriptor, BindingDescriptor, LifecycleHandler,
-};
+use lumbricus::{Application, ApplicationContext, ApplicationDescriptor, LifecycleHandler};
 use winit::keyboard::KeyCode;
 
-struct Game {
-    last_second: Instant,
-    fixed_update_count: u32,
-}
+struct Game {}
 
 impl Game {
     pub fn new() -> Self {
-        Self {
-            last_second: Instant::now(),
-            fixed_update_count: 0,
-        }
+        Self {}
     }
 }
 
 impl LifecycleHandler for Game {
-    fn initialize(&mut self, context: &mut ApplicationContext) {
+    fn initialize(&mut self, _context: &mut ApplicationContext) {
         println!("Initialized");
-        let mut jump_keys = HashSet::new();
-        jump_keys.insert(KeyCode::KeyW);
-
-        context.input.bind_action(
-            "jump",
-            BindingDescriptor {
-                keys: jump_keys,
-                ..Default::default()
-            },
-        );
     }
 
-    fn fixed_update(&mut self, delta: f32, context: &ApplicationContext) {
-        self.fixed_update_count += 1;
-        println!("fixed_update: {}", delta);
+    fn fixed_update(&mut self, _delta: f32, _context: &ApplicationContext) {
+        // println!("fixed_update: {}", delta);
+    }
 
-        if context.input.is_action_pressed("jump") {
-            println!("Jumped!");
+    fn update(&mut self, _delta: f32, context: &ApplicationContext) {
+        // println!(
+        //     "Fixed updates in the last second: {}",
+        //     self.fixed_update_count
+        // );
+
+        if context.input.is_key_pressed(KeyCode::KeyW) {
+            println!("Pressed!");
+        }
+
+        if context.input.is_key_released(KeyCode::KeyW) {
+            println!("Released!");
         }
     }
 
-    fn update(&mut self, _delta: f32, _context: &ApplicationContext) {
-        if self.last_second.elapsed() >= Duration::from_secs(1) {
-            println!(
-                "Fixed updates in the last second: {}",
-                self.fixed_update_count
-            );
-            self.fixed_update_count = 0;
-            self.last_second = Instant::now();
-        }
-    }
-
-    fn shutdown(&mut self, context: &mut ApplicationContext) {
+    fn shutdown(&mut self, _context: &mut ApplicationContext) {
         println!("Shutdown");
-
-        context.input.clear_bindings();
     }
 }
 

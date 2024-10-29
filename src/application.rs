@@ -108,7 +108,9 @@ impl<H: LifecycleHandler> ApplicationHandler for Application<H> {
     fn about_to_wait(&mut self, _: &winit::event_loop::ActiveEventLoop) {
         match &self.state {
             ApplicationState::Initialized => {
-                self.context.as_ref().unwrap().window.request_redraw();
+                let context = self.context.as_mut().unwrap();
+                context.input.clear();
+                context.window.request_redraw();
             }
             _ => (),
         };
