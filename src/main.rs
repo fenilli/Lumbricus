@@ -1,4 +1,4 @@
-use lumbricus::{Application, ApplicationDescriptor, LifecycleHandler};
+use lumbricus::{AppDescriptor, AppLifecycleHandler, Application};
 use winit::keyboard::KeyCode;
 
 struct Game {}
@@ -9,45 +9,35 @@ impl Game {
     }
 }
 
-impl LifecycleHandler for Game {
-    fn initialize(&mut self) {
-        println!("Initialized");
+impl AppLifecycleHandler for Game {
+    fn booted(&mut self, _context: &mut lumbricus::AppContext) {
+        println!("booted");
     }
 
-    fn input(&mut self, input: &lumbricus::Input) {
-        if input.is_key_pressed(KeyCode::KeyW) {
-            println!("Pressed!");
+    fn running(&mut self, context: &mut lumbricus::AppContext) {
+        // println!("running: {}", context.clock.get_delta_time());
+
+        if context.input.is_key_pressed(KeyCode::KeyW) {
+            println!("Pressed W");
         }
 
-        if input.is_key_released(KeyCode::KeyW) {
-            println!("Released!");
+        if context.input.is_key_released(KeyCode::KeyW) {
+            println!("Released W");
         }
     }
 
-    fn fixed_update(&mut self, _delta: f32) {
-        // println!("fixed_update: {}", delta);
-    }
-
-    fn update(&mut self, _delta: f32) {
-        // println!(
-        //     "Fixed updates in the last second: {}",
-        //     self.fixed_update_count
-        // );
-    }
-
-    fn shutdown(&mut self) {
-        println!("Shutdown");
+    fn exiting(&mut self, _context: &mut lumbricus::AppContext) {
+        println!("exiting");
     }
 }
 
 fn main() {
     let game = Game::new();
     Application::run(
-        ApplicationDescriptor {
+        AppDescriptor {
             title: "My Game",
             height: 600,
             width: 800,
-            fixed_time: 60,
         },
         game,
     );

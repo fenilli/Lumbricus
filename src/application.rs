@@ -6,69 +6,84 @@ use winit::{
     window::{Window, WindowAttributes},
 };
 
-use crate::{input::Input, FrameTimer, LifecycleHandler};
+use crate::{Clock, Input};
 
-pub struct ApplicationDescriptor {
+pub struct AppDescriptor {
     pub title: &'static str,
     pub height: u32,
     pub width: u32,
-    pub fixed_time: u32,
 }
 
-pub struct ApplicationContext {
-    pub frame_timer: FrameTimer,
+pub struct AppContext {
+    pub clock: Clock,
     pub input: Input,
-    window: Window,
+    pub window: Window,
 }
 
-enum ApplicationState {
-    Uninitialized(ApplicationDescriptor),
-    Initialized,
-    Exited,
+pub trait AppLifecycleHandler {
+    fn booted(&mut self, context: &mut AppContext);
+    fn running(&mut self, context: &mut AppContext);
+    fn exiting(&mut self, context: &mut AppContext);
 }
 
-pub struct Application<H: LifecycleHandler> {
-    context: Option<ApplicationContext>,
-    state: ApplicationState,
+pub struct Application<H: AppLifecycleHandler> {
+    descriptor: AppDescriptor,
+    context: Option<AppContext>,
     handler: H,
 }
 
-impl<H: LifecycleHandler> Application<H> {
-    pub fn run(descriptor: ApplicationDescriptor, handler: H) {
+impl<H: AppLifecycleHandler> Application<H> {
+    pub fn run(descriptor: AppDescriptor, handler: H) {
         let event_loop = EventLoop::new().unwrap();
         event_loop.set_control_flow(winit::event_loop::ControlFlow::Poll);
 
         let mut application = Application {
+            descriptor,
             context: None,
-            state: ApplicationState::Uninitialized(descriptor),
             handler,
         };
         _ = event_loop.run_app(&mut application);
     }
 }
 
-impl<H: LifecycleHandler> ApplicationHandler for Application<H> {
+impl<H: AppLifecycleHandler> ApplicationHandler for Application<H> {
     fn resumed(&mut self, event_loop: &winit::event_loop::ActiveEventLoop) {
-        match &self.state {
-            ApplicationState::Uninitialized(descriptor) => {
-                let window_attrs = WindowAttributes::default()
-                    .with_title(descriptor.title)
-                    .with_inner_size(PhysicalSize {
-                        width: descriptor.width,
-                        height: descriptor.height,
-                    });
+        if self.context.is_some() {
+            return;
+        }
 
-                let window = event_loop.create_window(window_attrs).unwrap();
-                self.context = Some(ApplicationContext {
-                    frame_timer: FrameTimer::new(descriptor.fixed_time),
-                    input: Input::new(),
-                    window,
-                });
-                self.handler.initialize();
-                self.state = ApplicationState::Initialized;
-            }
-            _ => (),
-        };
+        let window_attrs = WindowAttributes::default()
+            .with_title(self.descriptor.title)
+            .with_inner_size(PhysicalSize {
+                width: self.descriptor.width,
+                height: self.descriptor.height,
+            });
+
+        let window = event_loop.create_window(window_attrs).unwrap();
+
+        self.context = Some(AppContext {
+            clock: Clock::new(),
+            input: Input::new(),
+            window,
+        });
+        if let Some(context) = &mut self.context {
+            self.handler.booted(context);
+        }
+    }
+
+    fn about_to_wait(&mut self, _: &winit::event_loop::ActiveEventLoop) {
+        if let Some(context) = &mut self.context {
+            context.input.clear();
+            context.window.request_redraw();
+        }
+    }
+
+    fn exiting(&mut self, _event_loop: &winit::event_loop::ActiveEventLoop) {
+        if let Some(context) = &mut self.context {
+            self.handler.exiting(context);
+        }
+
+        self.context = None;
     }
 
     fn window_event(
@@ -77,43 +92,24 @@ impl<H: LifecycleHandler> ApplicationHandler for Application<H> {
         _: winit::window::WindowId,
         event: winit::event::WindowEvent,
     ) {
-        match self.state {
-            ApplicationState::Initialized => {
-                let context = self.context.as_mut().unwrap();
-                context.input.update(&event);
+        if self.context.is_none() {
+            return;
+        }
 
-                match event {
-                    WindowEvent::RedrawRequested => {
-                        self.handler.input(&context.input);
-
-                        context.frame_timer.tick();
-                        self.handler.update(context.frame_timer.get_delta_time());
-
-                        while context.frame_timer.should_do_fixed_tick() {
-                            self.handler
-                                .fixed_update(context.frame_timer.get_fixed_delta_time());
-                        }
-                    }
-                    WindowEvent::CloseRequested => {
-                        self.handler.shutdown();
-                        self.state = ApplicationState::Exited;
-                        event_loop.exit();
-                    }
-                    _ => {}
-                };
+        if let Some(context) = &mut self.context {
+            match event {
+                WindowEvent::KeyboardInput { event, .. } => {
+                    context.input.update(&event);
+                }
+                WindowEvent::RedrawRequested => {
+                    context.clock.tick();
+                    self.handler.running(context);
+                }
+                WindowEvent::CloseRequested => {
+                    event_loop.exit();
+                }
+                _ => {}
             }
-            _ => (),
-        };
-    }
-
-    fn about_to_wait(&mut self, _: &winit::event_loop::ActiveEventLoop) {
-        match &self.state {
-            ApplicationState::Initialized => {
-                let context = self.context.as_mut().unwrap();
-                context.input.clear();
-                context.window.request_redraw();
-            }
-            _ => (),
         };
     }
 }
