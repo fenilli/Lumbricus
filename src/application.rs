@@ -1,12 +1,9 @@
 use winit::{
-    application::ApplicationHandler,
-    dpi::PhysicalSize,
-    event::WindowEvent,
-    event_loop::EventLoop,
-    window::{Window, WindowAttributes},
+    application::ApplicationHandler, dpi::PhysicalSize, event::WindowEvent, event_loop::EventLoop,
+    window::WindowAttributes,
 };
 
-use crate::{Clock, Input};
+use crate::{Clock, Graphics, Input};
 
 pub struct AppDescriptor {
     pub title: &'static str,
@@ -17,7 +14,7 @@ pub struct AppDescriptor {
 pub struct AppContext {
     pub clock: Clock,
     pub input: Input,
-    pub window: Window,
+    pub graphics: Graphics,
 }
 
 pub trait AppLifecycleHandler {
@@ -64,8 +61,9 @@ impl<H: AppLifecycleHandler> ApplicationHandler for Application<H> {
         self.context = Some(AppContext {
             clock: Clock::new(),
             input: Input::new(),
-            window,
+            graphics: Graphics::new(window),
         });
+
         if let Some(context) = &mut self.context {
             self.handler.booted(context);
         }
@@ -74,7 +72,7 @@ impl<H: AppLifecycleHandler> ApplicationHandler for Application<H> {
     fn about_to_wait(&mut self, _: &winit::event_loop::ActiveEventLoop) {
         if let Some(context) = &mut self.context {
             context.input.clear();
-            context.window.request_redraw();
+            context.graphics.window.request_redraw();
         }
     }
 
