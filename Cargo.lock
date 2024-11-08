@@ -729,17 +729,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a7a70ba024b9dc04c27ea2f0c0548feb474ec5c54bba33a7f72f873a39d07b24"
 
 [[package]]
-name = "lumbricus"
-version = "0.1.0"
-dependencies = [
- "bytemuck",
- "nalgebra",
- "pollster",
- "wgpu",
- "winit",
-]
-
-[[package]]
 name = "malloc_buf"
 version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1267,6 +1256,17 @@ name = "pollster"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "22686f4785f02a4fcc856d3b3bb19bf6c8160d103f7a99cc258bddd0251dc7f2"
+
+[[package]]
+name = "pong-rust"
+version = "0.1.0"
+dependencies = [
+ "bytemuck",
+ "nalgebra",
+ "pollster",
+ "wgpu",
+ "winit",
+]
 
 [[package]]
 name = "presser"
