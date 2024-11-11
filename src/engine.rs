@@ -10,7 +10,7 @@ use winit::{
     window::Window,
 };
 
-use crate::rect::Rect;
+use crate::game::Game;
 
 use super::renderer::Renderer;
 
@@ -21,6 +21,7 @@ pub struct EngineState {
     queue: Arc<Queue>,
 
     renderer: Renderer,
+    game: Game,
 
     window: Arc<Window>,
 }
@@ -58,6 +59,7 @@ impl EngineState {
             queue: arc_queue,
 
             renderer,
+            game: Game::new(),
 
             window,
         }
@@ -75,6 +77,8 @@ impl EngineState {
     }
 
     pub fn draw(&mut self) {
+        self.game.update();
+
         let output = self.surface.get_current_texture().unwrap();
         let view = output.texture.create_view(&Default::default());
 
@@ -99,8 +103,10 @@ impl EngineState {
             });
 
             self.renderer.frame_start();
-            self.renderer
-                .draw_rect(&mut render_pass, &Rect::new(20.0, 20.0, 200, 200));
+
+            self.game.draw(&mut self.renderer);
+
+            self.renderer.frame_end(&mut render_pass);
         }
 
         self.queue.submit(std::iter::once(command_encoder.finish()));
