@@ -1,8 +1,5 @@
-use pong_rust::core::application::{Application, ApplicationDescriptor, PhysicalSize};
+use pong_rust::engine::Engine;
 
 fn main() {
-    Application::run(ApplicationDescriptor {
-        title: "Pong Rust",
-        size: PhysicalSize::new(800, 600),
-    });
+    Engine::run();
 }

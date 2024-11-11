@@ -1,4 +1,4 @@
-use wgpu::{Buffer, Device, SurfaceConfiguration};
+use wgpu::{Buffer, Device};
 
 pub struct Pipeline {
     pub pipeline: wgpu::RenderPipeline,
@@ -6,11 +6,7 @@ pub struct Pipeline {
 }
 
 impl Pipeline {
-    pub fn new(
-        device: &Device,
-        surface_config: &SurfaceConfiguration,
-        projection_buffer: &Buffer,
-    ) -> Self {
+    pub fn new(device: &Device, projection_buffer: &Buffer) -> Self {
         let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: None,
             source: wgpu::ShaderSource::Wgsl(include_str!("shaders/shader.wgsl").into()),
@@ -44,7 +40,7 @@ impl Pipeline {
             module: &shader_module,
             entry_point: "fs_main",
             targets: &[Some(wgpu::ColorTargetState {
-                format: surface_config.format,
+                format: wgpu::TextureFormat::Bgra8UnormSrgb,
                 blend: Some(wgpu::BlendState::REPLACE),
                 write_mask: wgpu::ColorWrites::ALL,
             })],
