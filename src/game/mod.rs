@@ -1,20 +1,26 @@
 use paddle::Paddle;
+use player::Player;
 
-use crate::renderer::Renderer;
+use crate::{input::Input, renderer::Renderer};
 
 mod paddle;
+mod player;
 
 pub struct Game {
-    player: Paddle,
+    player: Player,
     enemy: Paddle,
 }
 
 impl Game {
     pub fn new() -> Self {
         Self {
-            player: Paddle::new(20, 250),
+            player: Player::new(20, 250),
             enemy: Paddle::new(770, 250),
         }
+    }
+
+    pub fn input(&mut self, input: &Input) {
+        self.player.input(input);
     }
 
     pub fn update(&mut self) {

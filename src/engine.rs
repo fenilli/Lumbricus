@@ -5,12 +5,12 @@ use wgpu::{Device, Instance, Queue, Surface, SurfaceConfiguration};
 use winit::{
     application::ApplicationHandler,
     dpi::PhysicalSize,
-    event::WindowEvent,
+    event::{KeyEvent, WindowEvent},
     event_loop::{ActiveEventLoop, EventLoop},
     window::Window,
 };
 
-use crate::game::Game;
+use crate::{game::Game, input::Input};
 
 use super::renderer::Renderer;
 
@@ -21,6 +21,8 @@ pub struct EngineState {
     queue: Arc<Queue>,
 
     renderer: Renderer,
+    input: Input,
+
     game: Game,
 
     window: Arc<Window>,
@@ -59,6 +61,8 @@ impl EngineState {
             queue: arc_queue,
 
             renderer,
+            input: Input::new(),
+
             game: Game::new(),
 
             window,
@@ -74,6 +78,13 @@ impl EngineState {
         self.surface_config.height = size.height;
         self.surface.configure(&self.device, &self.surface_config);
         self.renderer.resize(size);
+    }
+
+    pub fn input(&mut self, event: &KeyEvent) {
+        self.input.clear();
+        self.input.update(event);
+
+        self.game.input(&self.input);
     }
 
     pub fn draw(&mut self) {
@@ -159,8 +170,9 @@ impl ApplicationHandler for Engine {
 
         match event {
             WindowEvent::Resized(size) => window_state.resize(size),
-            WindowEvent::RedrawRequested => window_state.draw(),
             WindowEvent::CloseRequested => self.window_state = None,
+            WindowEvent::RedrawRequested => window_state.draw(),
+            WindowEvent::KeyboardInput { event, .. } => window_state.input(&event),
             _ => {}
         }
     }

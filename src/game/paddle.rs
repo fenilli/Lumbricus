@@ -11,9 +11,7 @@ impl Paddle {
         }
     }
 
-    pub fn update(&mut self) {
-        self.rect.y += 1;
-    }
+    pub fn update(&mut self) {}
 
     pub fn draw(&self, renderer: &mut Renderer) {
         renderer.draw_rect(&self.rect);
