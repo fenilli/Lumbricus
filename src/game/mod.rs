@@ -18,7 +18,7 @@ pub struct Game {
 impl Game {
     pub fn new(window_size: PhysicalSize<u32>) -> Self {
         Self {
-            player: Player::new(20.0, 250.0),
+            player: Player::new(20.0, 250.0, window_size),
             enemy: Paddle::new(770.0, 250.0),
             ball: Ball::new(window_size),
         }

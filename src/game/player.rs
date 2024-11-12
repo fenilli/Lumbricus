@@ -1,4 +1,4 @@
-use winit::keyboard::KeyCode;
+use winit::{dpi::PhysicalSize, keyboard::KeyCode};
 
 use crate::{input::Input, rect::Rect, renderer::Renderer};
 
@@ -9,18 +9,20 @@ enum MoveDirection {
     DOWN,
 }
 
-const MOVE_SPEED: f32 = 4.0;
+const MOVE_SPEED: f32 = 10.0;
 
 pub struct Player {
     rect: Rect,
     move_direction: MoveDirection,
+    window_size: PhysicalSize<u32>,
 }
 
 impl Player {
-    pub fn new(x: f32, y: f32) -> Self {
+    pub fn new(x: f32, y: f32, window_size: PhysicalSize<u32>) -> Self {
         Self {
             rect: Rect::new(x, y, 10, 100),
             move_direction: MoveDirection::IDLE,
+            window_size,
         }
     }
 
@@ -35,6 +37,8 @@ impl Player {
     }
 
     pub fn update(&mut self) {
+        self.check_window_collision();
+
         if self.move_direction == MoveDirection::UP {
             self.rect.y -= MOVE_SPEED;
         } else if self.move_direction == MoveDirection::DOWN {
@@ -44,5 +48,13 @@ impl Player {
 
     pub fn draw(&self, renderer: &mut Renderer) {
         renderer.draw_rect(&self.rect);
+    }
+
+    fn check_window_collision(&mut self) {
+        if self.rect.y < 0.0 {
+            self.rect.y = 0.0;
+        } else if self.rect.y + self.rect.height as f32 > self.window_size.height as f32 {
+            self.rect.y = self.window_size.height as f32 - self.rect.height as f32;
+        }
     }
 }
