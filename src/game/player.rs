@@ -9,7 +9,7 @@ enum MoveDirection {
     DOWN,
 }
 
-const MOVE_SPEED: u32 = 4;
+const MOVE_SPEED: f32 = 4.0;
 
 pub struct Player {
     rect: Rect,
@@ -17,7 +17,7 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(x: u32, y: u32) -> Self {
+    pub fn new(x: f32, y: f32) -> Self {
         Self {
             rect: Rect::new(x, y, 10, 100),
             move_direction: MoveDirection::IDLE,

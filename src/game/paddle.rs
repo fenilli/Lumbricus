@@ -5,7 +5,7 @@ pub struct Paddle {
 }
 
 impl Paddle {
-    pub fn new(x: u32, y: u32) -> Self {
+    pub fn new(x: f32, y: f32) -> Self {
         Self {
             rect: Rect::new(x, y, 10, 100),
         }

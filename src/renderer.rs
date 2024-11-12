@@ -59,26 +59,26 @@ impl Renderer {
     pub fn draw_rect(&mut self, rect: &Rect) {
         let vertex_data = [
             // Top Left
-            rect.x as f32,
-            rect.y as f32,
+            rect.x,
+            rect.y,
             1.0,
             1.0,
             1.0,
             // Top Right
-            rect.x as f32 + rect.width as f32,
-            rect.y as f32,
+            rect.x + rect.width as f32,
+            rect.y,
             1.0,
             1.0,
             1.0,
             // Bottom Right
-            rect.x as f32 + rect.width as f32,
-            rect.y as f32 + rect.height as f32,
+            rect.x + rect.width as f32,
+            rect.y + rect.height as f32,
             1.0,
             1.0,
             1.0,
             // Bottom Left
-            rect.x as f32,
-            rect.y as f32 + rect.height as f32,
+            rect.x,
+            rect.y + rect.height as f32,
             1.0,
             1.0,
             1.0,

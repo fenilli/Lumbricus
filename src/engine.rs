@@ -63,7 +63,7 @@ impl EngineState {
             renderer,
             input: Input::new(),
 
-            game: Game::new(),
+            game: Game::new(window.inner_size()),
 
             window,
         }
