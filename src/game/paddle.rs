@@ -8,8 +8,11 @@ pub struct Paddle {
 
 impl Paddle {
     pub fn new(x: f32, y: f32) -> Self {
+        let width = 10.0;
+        let height = 100.0;
+
         Self {
-            rect: Rect::new(x, y, 10, 100),
+            rect: Rect::new(x, y - (height / 2.0), width as u32, height as u32),
         }
     }
 
