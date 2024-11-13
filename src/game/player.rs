@@ -4,9 +4,9 @@ use crate::{input::Input, rect::Rect, renderer::Renderer};
 
 #[derive(PartialEq)]
 enum MoveDirection {
-    IDLE,
-    UP,
-    DOWN,
+    Idle,
+    Up,
+    Down,
 }
 
 const MOVE_SPEED: f32 = 10.0;
@@ -20,7 +20,7 @@ impl Player {
     pub fn new(x: f32, y: f32) -> Self {
         Self {
             rect: Rect::new(x, y, 10, 100),
-            move_direction: MoveDirection::IDLE,
+            move_direction: MoveDirection::Idle,
         }
     }
 
@@ -34,18 +34,18 @@ impl Player {
 
     pub fn input(&mut self, input: &Input) {
         if input.is_key_down(KeyCode::KeyW) {
-            self.move_direction = MoveDirection::UP;
+            self.move_direction = MoveDirection::Up;
         } else if input.is_key_down(KeyCode::KeyS) {
-            self.move_direction = MoveDirection::DOWN;
+            self.move_direction = MoveDirection::Down;
         } else {
-            self.move_direction = MoveDirection::IDLE;
+            self.move_direction = MoveDirection::Idle;
         };
     }
 
     pub fn update(&mut self) {
-        if self.move_direction == MoveDirection::UP {
+        if self.move_direction == MoveDirection::Up {
             self.rect.y -= MOVE_SPEED;
-        } else if self.move_direction == MoveDirection::DOWN {
+        } else if self.move_direction == MoveDirection::Down {
             self.rect.y += MOVE_SPEED;
         }
     }
