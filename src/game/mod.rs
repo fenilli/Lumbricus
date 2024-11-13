@@ -64,7 +64,7 @@ impl Game {
         self.player.update();
         self.player.collide(self.window_size);
 
-        self.enemy.update();
+        self.enemy.update(&self.ball.rect);
         self.enemy.collide(self.window_size);
     }
 

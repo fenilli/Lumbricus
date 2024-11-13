@@ -18,7 +18,7 @@ pub enum CollisionDirection {
 pub struct Ball {
     center: Vector2<f32>,
 
-    rect: Rect,
+    pub rect: Rect,
     speed: f32,
     bounces: u32,
     direction: Vector2<f32>,

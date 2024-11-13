@@ -2,6 +2,8 @@ use winit::dpi::PhysicalSize;
 
 use crate::{rect::Rect, renderer::Renderer};
 
+const MOVE_SPEED: f32 = 7.0;
+
 pub struct Paddle {
     pub rect: Rect,
 }
@@ -24,7 +26,15 @@ impl Paddle {
         }
     }
 
-    pub fn update(&mut self) {}
+    pub fn update(&mut self, ball_rect: &Rect) {
+        if self.rect.y + (self.rect.height as f32 / 2.0) < ball_rect.y {
+            self.rect.y += MOVE_SPEED;
+        }
+
+        if self.rect.y - (self.rect.height as f32 / 2.0) > ball_rect.y {
+            self.rect.y -= MOVE_SPEED;
+        }
+    }
 
     pub fn draw(&self, renderer: &mut Renderer) {
         renderer.draw_rect(&self.rect);
